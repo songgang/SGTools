@@ -10,44 +10,52 @@ endif(COMMAND cmake_policy)
 #
 # Find ITK
 #
-include (${CMAKE_ROOT}/Modules/FindITK.cmake)
-if (USE_ITK_FILE)
-  include(${USE_ITK_FILE})
-endif(USE_ITK_FILE)
-
-set( CMAKE_INCLUDE_DIRECTORIES_BEFORE ON )
-
-# set(ITK_SOURCE_DIR /home/songgang/local/project/ITKv4/ITK)
-
-# message( ${ITK_SOURCE_DIR} )
 
 
-set(CMAKE_MODULE_PATH ${ITK_SOURCE_DIR}/CMake)
-option(USE_FFTWD "Use double precision FFTW if found" OFF)
-option(USE_FFTWF "Use single precision FFTW if found" OFF)
-# find_package( FFTW )
+FIND_PACKAGE(ITK REQUIRED)
 
-
-if(USE_FFTWD)
-   link_libraries(${FFTWD_LIB})
-endif(USE_FFTWD)
-
-if(USE_FFTWF)
-   link_libraries(${FFTWF_LIB})
-endif(USE_FFTWF)
-
-
-
+IF(ITK_FOUND)
+  INCLUDE(${ITK_USE_FILE})
+ELSE(ITK_FOUND)
+  MESSAGE(FATAL_ERROR
+          "Cannot build ITKApps without ITK.  Please set ITK_DIR.")
+ENDIF(ITK_FOUND)
 
 link_directories(
   ${ITK_LIBRARY_PATH}
-#  ${FFTW_LIBDIR}
 )
 
-# set(SOURCES "${CMAKE_SOURCE_DIR}/../ExperimentalITK/Common/itkCommandLineParser" "${CMAKE_SOURCE_DIR}/../ExperimentalITK/Common/itkCommandLineOption" )
+# Manage FFT v3 Options
+#
+# USE_FFTWD -- use double precision fftw
+option(USE_FFTWD "Use double precision fftw if found" OFF)
+# mark_as_advanced(USE_FFTWD)
 
-# set(UI_SOURCES "${CMAKE_SOURCE_DIR}/../ExperimentalITK/Common/antsCommandLineParser" "${CMAKE_SOURCE_DIR}/../ExperimentalITK/Common/antsCommandLineOption" )
+#
+# USE_FFTWF -- use single precision fftw
+option(USE_FFTWF "Use single precision fftw if found" OFF)
+
+# mark_as_advanced(USE_FFTWF)
+
+# USE_SYSTEM_FFTW -- locate a readybuilt fftw installation
+option(USE_SYSTEM_FFTW "Use an installed version of fftw" OFF)
+
+# mark_as_advanced(USE_SYSTEM_FFTW)
+
+
+if (USE_FFTWD OR USE_FFTWF)
+	if(USE_SYSTEM_FFTW)
+    	find_package( FFTW )
+    	link_directories(${FFTW_LIBDIR})
+	else(USE_SYSTEM_FFTW)
+    	link_directories(${ITK_DIR}/fftw/lib)
+    	include_directories(${ITK_DIR}/fftw/include)
+	endif(USE_SYSTEM_FFTW)
+endif(USE_FFTWD OR USE_FFTWF)
+
 
 add_executable( ShikataLineFiltering ShikataLineFiltering.cxx )
 target_link_libraries( ShikataLineFiltering ${ITK_LIBRARIES})
+
+
 
