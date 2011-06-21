@@ -25,7 +25,7 @@ set( CMAKE_INCLUDE_DIRECTORIES_BEFORE ON )
 set(CMAKE_MODULE_PATH ${ITK_SOURCE_DIR}/CMake)
 option(USE_FFTWD "Use double precision FFTW if found" OFF)
 option(USE_FFTWF "Use single precision FFTW if found" OFF)
-find_package( FFTW )
+# find_package( FFTW )
 
 
 if(USE_FFTWD)
